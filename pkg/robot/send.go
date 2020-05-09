@@ -63,11 +63,12 @@ func (r *Send) GetApiName() string {
 }
 
 // At @
-// atMobiles 被@人的手机号(在text内容里要有@手机号)
-// isAtAll   @所有人时：true，否则为：false
 type At struct {
+	// atMobiles 被@人的手机号(在text内容里要有@手机号)
 	AtMobiles []string `json:"atMobiles,omitempty"`
-	IsAtAll   bool     `json:"isAtAll,omitempty"`
+
+	// isAtAll   @所有人时：true，否则为：false
+	IsAtAll bool `json:"isAtAll,omitempty"`
 }
 
 func (a *At) GetAtMobiles() []string {

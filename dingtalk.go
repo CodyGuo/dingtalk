@@ -2,7 +2,6 @@ package dingtalk
 
 import (
 	"bytes"
-	"dingtalk/utils"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/CodyGuo/dingtalk/utils"
 	"github.com/CodyGuo/glog"
 )
 

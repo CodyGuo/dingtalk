@@ -1,12 +1,14 @@
 package dingtalk
 
-import "dingtalk/pkg/robot"
+import "github.com/CodyGuo/dingtalk/pkg/robot"
 
+// RobotSendText text类型的消息
 func (dt *DingTalk) RobotSendText(text string, options ...robot.SendOption) error {
 	msg := robot.Text{Content: text}
 	return dt.Request(robot.NewSend(msg, options...))
 }
 
+// RobotSendLink link类型的消息
 func (dt *DingTalk) RobotSendLink(title, text, messageURL, picURL string, options ...robot.SendOption) error {
 	msg := robot.Link{
 		Title:      title,
@@ -17,6 +19,7 @@ func (dt *DingTalk) RobotSendLink(title, text, messageURL, picURL string, option
 	return dt.Request(robot.NewSend(msg))
 }
 
+// RobotSendMarkdown markdown类型的消息
 func (dt *DingTalk) RobotSendMarkdown(title, text string, options ...robot.SendOption) error {
 	msg := robot.Markdown{
 		Title: title,
@@ -25,6 +28,7 @@ func (dt *DingTalk) RobotSendMarkdown(title, text string, options ...robot.SendO
 	return dt.Request(robot.NewSend(msg, options...))
 }
 
+// RobotSendEntiretyActionCard 整体跳转ActionCard类型
 func (dt *DingTalk) RobotSendEntiretyActionCard(title, text, singleTitle, singleURL, btnOrientation string, options ...robot.SendOption) error {
 	msg := robot.ActionCard{
 		Title:          title,
@@ -36,6 +40,7 @@ func (dt *DingTalk) RobotSendEntiretyActionCard(title, text, singleTitle, single
 	return dt.Request(robot.NewSend(msg, options...))
 }
 
+// RobotSendIndependentActionCard 独立跳转ActionCard类型
 func (dt *DingTalk) RobotSendIndependentActionCard(title, text, btnOrientation string, btns map[string]string, options ...robot.SendOption) error {
 	var rBtns []robot.Btn
 	for title, actionURL := range btns {
@@ -54,6 +59,7 @@ func (dt *DingTalk) RobotSendIndependentActionCard(title, text, btnOrientation s
 	return dt.Request(robot.NewSend(msg, options...))
 }
 
+// RobotSendFeedCard FeedCard类型
 func (dt *DingTalk) RobotSendFeedCard(links []robot.FeedCardLink, options ...robot.SendOption) error {
 	msg := robot.FeedCard{
 		Links: links,

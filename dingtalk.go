@@ -52,6 +52,7 @@ func New(url string, options ...Option) *DingTalk {
 	for _, option := range options {
 		option(dt)
 	}
+	dt.initClient()
 	return dt
 }
 
@@ -64,7 +65,8 @@ func (dt *DingTalk) SetSecret(secret string) {
 func (dt *DingTalk) Request(req Requester) error {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
-	if err := dt.initClient(); err != nil {
+	if err := dt.check(); err != nil {
+		dt.err = newErr("request check failed", err)
 		return err
 	}
 	method := req.GetMethod()
@@ -76,6 +78,7 @@ func (dt *DingTalk) Request(req Requester) error {
 	}
 	log.Debugf("url: %s, timeout: %s, method: %s, header: %v, body: %s",
 		dt.url, dt.timeout, method, header, body)
+
 	resp, err := dt.client.Request(method, header, body)
 	if err != nil {
 		dt.err = newErr("http request failed", err)
@@ -83,6 +86,7 @@ func (dt *DingTalk) Request(req Requester) error {
 	}
 	defer resp.Body.Close()
 	dt.response = resp
+
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		dt.err = newErr("read resp body failed", err)
@@ -117,10 +121,7 @@ func (dt *DingTalk) GetResponse() (*http.Response, error) {
 	return dt.response, nil
 }
 
-func (dt *DingTalk) initClient() error {
-	if err := dt.check(); err != nil {
-		return newErr("request check failed", err)
-	}
+func (dt *DingTalk) initClient() {
 	// 拼接请求参数
 	step := "?"
 	if strings.Contains(dt.url, "?") {
@@ -129,7 +130,6 @@ func (dt *DingTalk) initClient() error {
 	params := dt.genQueryParams()
 	dt.url = strings.Join([]string{dt.url, params}, step)
 	dt.client = utils.NewHttpClient(dt.url, dt.timeout)
-	return nil
 }
 
 func (dt *DingTalk) genQueryParams() string {

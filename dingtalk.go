@@ -39,7 +39,6 @@ type DingTalk struct {
 	secret   string
 	timeout  time.Duration
 	client   *utils.HttpClient
-	request  *http.Request
 	response *http.Response
 	err      *Err
 }
@@ -65,12 +64,9 @@ func (dt *DingTalk) SetSecret(secret string) {
 func (dt *DingTalk) Request(req Requester) error {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
-	if err := dt.check(); err != nil {
-		return newErr("request check failed", err)
+	if err := dt.initClient(); err != nil {
+		return err
 	}
-	// 拼接请求参数
-	dt.genQueryParams()
-	dt.client = utils.NewHttpClient(dt.url, dt.timeout)
 	method := req.GetMethod()
 	header := req.GetHeader()
 	body, err := req.GetBody()
@@ -104,7 +100,7 @@ func (dt *DingTalk) Request(req Requester) error {
 		return dt.err
 	}
 	dt.err.ApplicationHost = resp.Header.Get("Application-Host")
-	dt.err.ApplicationHost = resp.Header.Get("Location-Host")
+	dt.err.ServiceHost = resp.Header.Get("Location-Host")
 	if dt.err.Code != req.GetSuccessCode() {
 		dt.err = newErr("response status code failed", dt.err)
 		return dt.err
@@ -121,11 +117,22 @@ func (dt *DingTalk) GetResponse() (*http.Response, error) {
 	return dt.response, nil
 }
 
-func (dt *DingTalk) genQueryParams() {
+func (dt *DingTalk) initClient() error {
+	if err := dt.check(); err != nil {
+		return newErr("request check failed", err)
+	}
+	// 拼接请求参数
 	step := "?"
 	if strings.Contains(dt.url, "?") {
 		step = "&"
 	}
+	params := dt.genQueryParams()
+	dt.url = strings.Join([]string{dt.url, params}, step)
+	dt.client = utils.NewHttpClient(dt.url, dt.timeout)
+	return nil
+}
+
+func (dt *DingTalk) genQueryParams() string {
 	params := url.Values{}
 	if dt.secret != "" {
 		timestamp := time.Now().UnixNano() / 1e6
@@ -133,7 +140,7 @@ func (dt *DingTalk) genQueryParams() {
 		params.Add("timestamp", strconv.FormatInt(timestamp, 10))
 		params.Add("sign", sign)
 	}
-	dt.url = strings.Join([]string{dt.url, step, params.Encode()}, "")
+	return params.Encode()
 }
 
 func (dt *DingTalk) check() error {

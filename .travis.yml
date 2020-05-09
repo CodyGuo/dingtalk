@@ -1,0 +1,19 @@
+language: go
+go_import_path: github.com/CodyGuo/dingtalk
+git:
+  depth: 1
+env:
+  - GO111MODULE=on
+go: [1.12.x, 1.13.x, 1.14.x]
+os: [windows, linux, osx]
+script:
+  - export GOMAXPROCS=4
+  - export GORACE=halt_on_error=1
+  - cd examples
+  - cd robot && go build && robot
+  - cd ../..
+  - go test -v .
+  - go test -race -v .
+  - cd utils
+  - go test -run="none" -benchmem -bench .
+  - cd ..

@@ -26,7 +26,6 @@ func init() {
 }
 
 type Requester interface {
-	GetApiName() string
 	GetMethod() string
 	GetHeader() map[string]string
 	GetBody() ([]byte, error)
@@ -56,10 +55,28 @@ func New(url string, options ...Option) *DingTalk {
 	return dt
 }
 
+func (dt *DingTalk) GetSecret() string {
+	dt.mu.Lock()
+	defer dt.mu.Unlock()
+	return dt.secret
+}
+
 func (dt *DingTalk) SetSecret(secret string) {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
 	dt.secret = secret
+}
+
+func (dt *DingTalk) GetTimeout() time.Duration {
+	dt.mu.Lock()
+	defer dt.mu.Unlock()
+	return dt.client.GetTimeout()
+}
+
+func (dt *DingTalk) SetTimeout(timeout time.Duration) {
+	dt.mu.Lock()
+	defer dt.mu.Unlock()
+	dt.client.SetTimeout(timeout)
 }
 
 func (dt *DingTalk) Request(req Requester) error {

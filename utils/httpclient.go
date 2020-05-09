@@ -18,6 +18,22 @@ func NewHttpClient(url string, timeout time.Duration) *HttpClient {
 	}
 }
 
+func (c *HttpClient) GetURL() string {
+	return c.Url
+}
+
+func (c *HttpClient) SetURL(url string) {
+	c.Url = url
+}
+
+func (c *HttpClient) GetTimeout() time.Duration {
+	return c.client.Timeout
+}
+
+func (c *HttpClient) SetTimeout(timeout time.Duration) {
+	c.client.Timeout = timeout
+}
+
 func (c *HttpClient) Request(method string, header map[string]string, body []byte) (response *http.Response, err error) {
 	req, err := http.NewRequest(method, c.Url, bytes.NewReader(body))
 	if err != nil {

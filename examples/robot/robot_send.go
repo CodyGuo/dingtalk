@@ -14,7 +14,7 @@ func main() {
 	secret := "xxx"
 	dt := dingtalk.New(webHook, dingtalk.WithSecret(secret))
 
-	// text
+	// text类型
 	textContent := "我就是我, 是不一样的烟火@176xxxx8207"
 	atMobiles := robot.SendWithAtMobiles([]string{"176xxxxxx07", "178xxxxxx28"})
 	if err := dt.RobotSendText(textContent, atMobiles); err != nil {
@@ -22,7 +22,7 @@ func main() {
 	}
 	printResult(dt)
 
-	// link
+	// link类型
 	linkTitle := "时代的火车向前开"
 	linkText := `这个即将发布的新版本，创始人xx称它为“红树林”。` +
 		`而在此之前，每当面临重大升级，产品经理们都会取一个应景的代号，` +
@@ -34,7 +34,7 @@ func main() {
 	}
 	printResult(dt)
 
-	// markdown
+	// markdown类型
 	markdownTitle := "markdown"
 	markdownText := "#### 杭州天气 @176XXXXXXXX\n" +
 		"> 9度，西北风1级，空气良89，相对温度73%\n" +
@@ -45,7 +45,7 @@ func main() {
 	}
 	printResult(dt)
 
-	// actionCard
+	// 整体跳转ActionCard类型
 	actionCardTitle := "乔布斯 20 年前想打造一间苹果咖啡厅，而它正是 Apple Store 的前身"
 	actionCardText := "![screenshot](@lADOpwk3K80C0M0FoA)\n" +
 		"### 乔布斯 20 年前想打造的苹果咖啡厅\n" +
@@ -63,6 +63,7 @@ func main() {
 	}
 	printResult(dt)
 
+	// 独立跳转ActionCard类型
 	btns := map[string]string{
 		"内容不错": actionCardSingleURL,
 		"不感兴趣": actionCardSingleURL,
@@ -75,7 +76,7 @@ func main() {
 	}
 	printResult(dt)
 
-	// feedCard
+	// FeedCard类型
 	link1 := robot.FeedCardLink{
 		Title:      linkTitle,
 		MessageURL: linkMessageURL,

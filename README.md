@@ -124,22 +124,22 @@ func printResult(dt *dingtalk.DingTalk) {
 }
 ```
 
-### text
+### text类型
 ![image](<doc/text.jpg>)
 
-### link
+### link类型
 ![image](<doc/link.jpg>)
 
-### markdown
+### markdown类型
 ![image](<doc/markdown.jpg>)
 
-### entiretyActionCard
+### 整体跳转ActionCard类型
 ![image](<doc/entiretyActionCard.jpg>)
 
-### independentActionCard
+### 独立跳转ActionCard类型
 ![image](<doc/independentActionCard.jpg>)
 
-## feedCard
+## FeedCard类型
 ![image](<doc/feedCard.jpg>)
 
 ## Using

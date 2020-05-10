@@ -1,22 +1,18 @@
 package dingtalk
 
-import "encoding/json"
-
 type Error struct {
-	Op              string `json:"Op,omitempty"`
-	URL             string `json:"URL,omitempty"`
-	Code            int64  `json:"errcode,omitempty"`
-	Msg             string `json:"errmsg,omitempty"`
-	ApplicationHost string `json:"application_host,omitempty"`
-	ServiceHost     string `json:"service_host,omitempty"`
-	Err             error  `json:"Err,omitempty"`
+	Op   string `json:"Op"`
+	URL  string `json:"URL"`
+	Body string `json:"Body"`
+	Err  error  `json:"Err"`
 }
 
-func newError(op, url string, err error) *Error {
+func newError(op, url, body string, err error) *Error {
 	return &Error{
-		Op:  op,
-		URL: url,
-		Err: err,
+		Op:   op,
+		URL:  url,
+		Body: body,
+		Err:  err,
 	}
 }
 
@@ -25,9 +21,5 @@ func (e *Error) Unwrap() error {
 }
 
 func (e *Error) Error() string {
-	data, err := json.Marshal(e)
-	if err != nil {
-		return err.Error()
-	}
-	return string(data)
+	return e.Op + " " + e.URL + " " + e.Body + ": " + e.Err.Error()
 }

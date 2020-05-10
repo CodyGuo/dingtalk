@@ -45,7 +45,7 @@ type DingTalk struct {
 func New(url string, options ...Option) *DingTalk {
 	dt := &DingTalk{
 		url:     url,
-		timeout: 3 * time.Second,
+		timeout: 5 * time.Second,
 		err:     &Error{},
 	}
 	for _, option := range options {
@@ -105,13 +105,14 @@ func (dt *DingTalk) Request(req Requester) error {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
 	if err := dt.checkURL(); err != nil {
-		return dt.newError("checkURL", err)
+		return dt.newError("checkURL", "", err)
 	}
-	if err := dt.request(req); err != nil {
-		return dt.newError("request", err)
+	body, err := dt.request(req)
+	if err != nil {
+		return dt.newError("request", body, err)
 	}
 	if err := dt.checkResponse(req); err != nil {
-		return dt.newError("checkResponse", err)
+		return dt.newError("checkResponse", body, err)
 	}
 	return nil
 }
@@ -124,21 +125,21 @@ func (dt *DingTalk) checkURL() error {
 	return nil
 }
 
-func (dt *DingTalk) request(req Requester) error {
+func (dt *DingTalk) request(req Requester) (string, error) {
 	method := req.GetMethod()
 	header := req.GetHeader()
 	body, err := req.GetBody()
 	if err != nil {
-		return err
+		return "", err
 	}
 	log.Debugf("url: %s, timeout: %s, method: %s, header: %v, body: %s",
 		dt.url, dt.timeout, method, header, body)
 
 	dt.response, err = dt.client.Request(method, header, body)
 	if err != nil {
-		return err
+		return string(body), err
 	}
-	return nil
+	return string(body), nil
 }
 
 func (dt *DingTalk) checkResponse(req Requester) error {
@@ -148,23 +149,25 @@ func (dt *DingTalk) checkResponse(req Requester) error {
 		return err
 	}
 	dt.response.Body = ioutil.NopCloser(bytes.NewReader(data))
+
 	if dt.response.StatusCode != http.StatusOK {
 		return fmt.Errorf("invalid http status %d, body: %s", dt.response.StatusCode, data)
 	}
-	jsonDecoder := json.NewDecoder(bytes.NewReader(data))
-	if err := jsonDecoder.Decode(dt.err); err != nil {
+
+	respMsg := ResponseMsg{}
+	if err := json.Unmarshal(data, &respMsg); err != nil {
 		return fmt.Errorf("body: %s, %w", data, err)
 	}
-	dt.err.ApplicationHost = dt.response.Header.Get("Application-Host")
-	dt.err.ServiceHost = dt.response.Header.Get("Location-Host")
-	if dt.err.Code != req.GetSuccessCode() {
-		return dt.err
+	respMsg.ApplicationHost = dt.response.Header.Get("Application-Host")
+	respMsg.ServiceHost = dt.response.Header.Get("Location-Host")
+	if respMsg.ErrCode != req.GetSuccessCode() {
+		return fmt.Errorf("%s", respMsg)
 	}
 	return nil
 }
 
-func (dt *DingTalk) newError(op string, err error) error {
-	dt.err = newError(op, dt.url, err)
+func (dt *DingTalk) newError(op, body string, err error) error {
+	dt.err = newError(op, dt.url, body, err)
 	return dt.err
 }
 
@@ -172,7 +175,7 @@ func (dt *DingTalk) GetResponse() (*http.Response, error) {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
 	if dt.err.Err != nil {
-		return nil, dt.newError("GetResponse", dt.err)
+		return nil, dt.newError("GetResponse", "", dt.err)
 	}
 	return dt.response, nil
 }

@@ -2,9 +2,21 @@
 
 [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/CodyGuo/dingtalk) [![build status](https://img.shields.io/travis/CodyGuo/dingtalk/master.svg?style=flat-square)](https://travis-ci.org/CodyGuo/dingtalk)
 
-钉钉SDK
+## 钉钉SDK
 
-* [群机器人](https://ding-doc.dingtalk.com/doc#/serverapi2/krgddi)
+### [群机器人](https://ding-doc.dingtalk.com/doc#/serverapi2/krgddi)
+
+**功能**
+* 支持完整的接口调用
+* 支持go模板文件调用
+
+**消息类型**
+* text类型
+* link类型
+* markdown类型
+* 整体跳转ActionCard类型
+* 独立跳转ActionCard类型
+* FeedCard类型
 
 ## Example
 

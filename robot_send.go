@@ -1,11 +1,44 @@
 package dingtalk
 
-import "github.com/CodyGuo/dingtalk/pkg/robot"
+import (
+	"bytes"
+	"text/template"
+
+	"github.com/CodyGuo/dingtalk/pkg/robot"
+)
 
 // RobotSendText text类型的消息
 func (dt *DingTalk) RobotSendText(text string, options ...robot.SendOption) error {
 	msg := robot.Text{Content: text}
 	return dt.Request(robot.NewSend(msg, options...))
+}
+
+// RobotSendTextWithTemplate text类型的消息
+// go template
+func (dt *DingTalk) RobotSendTextWithTemplate(text string, data interface{}, options ...robot.SendOption) error {
+	var out bytes.Buffer
+	t, err := template.New("text").Parse(text)
+	if err != nil {
+		return err
+	}
+	if err := t.Execute(&out, data); err != nil {
+		return err
+	}
+	return dt.RobotSendText(out.String(), options...)
+}
+
+// RobotSendTextWithFile text类型的消息
+// go template file
+func (dt *DingTalk) RobotSendTextWithFile(filename string, data interface{}, options ...robot.SendOption) error {
+	t, err := template.ParseFiles(filename)
+	if err != nil {
+		return err
+	}
+	var out bytes.Buffer
+	if err := t.Execute(&out, data); err != nil {
+		return err
+	}
+	return dt.RobotSendText(out.String(), options...)
 }
 
 // RobotSendLink link类型的消息
@@ -16,7 +49,7 @@ func (dt *DingTalk) RobotSendLink(title, text, messageURL, picURL string, option
 		MessageURL: messageURL,
 		PicURL:     picURL,
 	}
-	return dt.Request(robot.NewSend(msg))
+	return dt.Request(robot.NewSend(msg, options...))
 }
 
 // RobotSendMarkdown markdown类型的消息

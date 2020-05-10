@@ -20,4 +20,6 @@
 token.conf
 
 # bin
-robot
+examples/robot/robot
+examples/robot/text/text
+examples/robot/link/link
